@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Assignment 2</title>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js">
+        </script>
+    </head>
+    <body> 
+        <div id="app">
+          <form action="/newtable" method="POST">
+              <button>Create Table</button>
+          </form>
+          
+          <form action="/table" method="POST">
+            <button>Destroy Table</button>
+          </form>
+            <input v-model="moviename" id="moviename" placeholder="Enter the Movie">
+            <input v-model="movieyear" id="movieyear" placeholder="Enter the Year">
+        
+          <button v-on:click="queryTable">Show Results</button>
+          <!-- Table Headings for Returned Querying -->
+          <table style="width:100%">
+            <tr>
+              <th>Movie Name</th>
+              <th>Release Date</th>
+              <th>Rank</th>
+            </tr>
+            <hr>
+            <!-- Returned Query Results -->
+            <tr>
+              <th>{{title}}</th>
+              <th>{{release_date}}</th>
+              <th>{{rank}}</th>
+            </tr>
+            </table>
+        </div>
+        <script>
+        var app = new Vue({
+          el: '#app',
+          data:{
+            moviename: "",
+            movieyear:"",
+            rank: "j ",
+            title: "",
+            release_date:""
+          },
+          methods: {
+            queryTable : queryTable,
+            destroyTable : destroyTable
+          }
+        })
+
+        
+
+
+        async function queryTable(){
+          console.log("Querying Table...")
+          
+          let url = "http://localhost:3000/query"
+          //let send_data = {"name":this.moviename, "year": this.movieyear}
+          console.log(this.moviename)
+          fetch(url, {
+            headers: {
+              'Content-Type': 'application/json'
+            },
+
+            method: 'post',
+            body: JSON.stringify({
+              "name":this.moviename, 
+              "year": this.movieyear
+            }),
+        
+          })
+          .then(response => response.json())
+          .then(response => {
+          app.rank = response.data[0].rank;
+          this.release_date = response.data[0].release_date;
+          this.title = response.data[0].title;
+          })
+
+
+        }
+        </script>
+    </body>
+</html>
