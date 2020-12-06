@@ -8,18 +8,20 @@
     </head>
     <body> 
         <div id="app">
+          <!-- Button for Creating DyanamoDB Table -->
           <form action="/newtable" method="POST">
               <button>Create Table</button>
           </form>
-          
+          <!-- Button for Deleting DyanamoDB Table -->
           <form action="/table" method="POST">
             <button>Destroy Table</button>
           </form>
+          <!-- Text Box for Entering Movie Name and Movie Year-->
             <input v-model="moviename" id="moviename" placeholder="Enter the Movie">
             <input v-model="movieyear" id="movieyear" placeholder="Enter the Year">
-        
+          <!-- Query Table Button -->
           <button v-on:click="queryTable">Show Results</button>
-          <!-- Table Headings for Returned Querying -->
+          <!-- Table Headings for Query Results -->
           <table style="width:100%">
             <tr>
               <th>Movie Name</th>
@@ -27,12 +29,15 @@
               <th>Rank</th>
             </tr>
             <hr>
-            <!-- Returned Query Results -->
-            <tr>
-              <th>{{title}}</th>
-              <th>{{release_date}}</th>
-              <th>{{rank}}</th>
-            </tr>
+            <!-- Display Query Results if there are any -->
+            <div v-if="movieresult.length > 0">
+              <!-- Loop Through Response List and show Each Movie -->
+              <tr v-for="movie in movieresult">
+                <td>{{movie.title}}</td>
+                <td>{{movie.release_date}}</td>
+                <td>{{movie.rank}}</td>
+              </tr>
+            </div>            
             </table>
         </div>
         <script>
@@ -41,45 +46,36 @@
           data:{
             moviename: "",
             movieyear:"",
-            rank: "j ",
-            title: "",
-            release_date:""
+            movieresult:[]      // holds every movie returned from the database
           },
           methods: {
-            queryTable : queryTable,
-            destroyTable : destroyTable
+            queryTable : queryTable,       // function to query database
           }
         })
 
-        
-
-
-        async function queryTable(){
+        // Function to Send Movie Name and Year to Node Server and Parse Response
+        function queryTable(){
           console.log("Querying Table...")
           
-          let url = "http://localhost:3000/query"
-          //let send_data = {"name":this.moviename, "year": this.movieyear}
-          console.log(this.moviename)
+          let url = "http://localhost:3000/query"   // endpoint for querying
           fetch(url, {
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json'    // JSON header
             },
-
+            // post movie name and movie year in a JSON object to back end
             method: 'post',
             body: JSON.stringify({
               "name":this.moviename, 
               "year": this.movieyear
             }),
-        
           })
+          // Handle Response
           .then(response => response.json())
           .then(response => {
-          app.rank = response.data[0].rank;
-          this.release_date = response.data[0].release_date;
-          this.title = response.data[0].title;
+            /* Loop through each item in response and display each movie returned */
+            console.log(response.data)
+              app.movieresult = response.data
           })
-
-
         }
         </script>
     </body>
